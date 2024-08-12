@@ -1,7 +1,7 @@
 package muehle;
 
 public class Main {
-	//Test
+	//Test3
 	public static void main(String[] args) {
 		System.out.println("Mühle");
 	}
