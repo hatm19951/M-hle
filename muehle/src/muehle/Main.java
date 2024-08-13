@@ -10,7 +10,8 @@ public class Main {
 		
 		S1.getSteinPosition();
 		S2.getSteinPosition();
-		S3.getSteinPosition();	
+		S3.getSteinPosition();
+		System.err.println("HI");	
 	}
 	
 	
