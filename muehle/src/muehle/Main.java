@@ -1,16 +1,21 @@
 package muehle;
 
+import muehle.Spielreglen;
+
 public class Main {
 	public static void main(String[] args) {
 		
 		// test Stein Klasse von Hatem
-		Stein S1 = new Stein ("S1",0,0,'w');
-		Stein S2 = new Stein ("S1",0,1,'w');
-		Stein S3 = new Stein ("S1",0,2,'w');
+		Spielreglen game = new Spielreglen();
+		game.steinen[0].setSteinPosition(50, 50);
+		game.steinen[1].setSteinPosition(100, 50);
+		game.steinen[2].setSteinPosition(250, 50);
 		
-		S1.getSteinPosition();
-		S2.getSteinPosition();
-		S3.getSteinPosition();
+		game.steinen[3].setSteinPosition(250, 100);
+		game.steinen[4].setSteinPosition(250, 150);
+		System.out.println(game.gleichX());
+		
+		// test von Yafet
 		System.err.println("HI");	
 	}
 	
