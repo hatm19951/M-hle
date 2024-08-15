@@ -1,33 +1,32 @@
 package muehle;
-import spieler.Spieler;
 
-import java.util.List;
+import muehle.Spielreglen;
 
 public class Main {
-    public static void main(String[] args) {
-        // Erstelle einen neuen Spieler mit Namen und Farbe
-        Spieler spieler1 = new Spieler("Spieler 1", 'r');
+	public static void main(String[] args) {
+		
+		/*test Stein Klasse von Hatem
+		Spielreglen game = new Spielreglen();
+		game.steinen[0].setSteinPosition(50, 50);
+		game.steinen[1].setSteinPosition(100, 50);
+		game.steinen[2].setSteinPosition(250, 50);
+		
+		game.steinen[3].setSteinPosition(250, 100);
+		game.steinen[4].setSteinPosition(250, 150);
+		System.out.println(game.gleichX());
+		
+		// test von Yafet
+		System.err.println("HI");	
+		
+		*/
+		Spieler spieler1 = new Spieler("jdhf",'d');
+		spieler1.steinSetzen("dfd", 3,3);
+		Stein ersterStein = spieler1.getSteine().get(0);
+		System.out.println(ersterStein.id);
+		
+	}
+	
+	
 
-        // Setze einige Steine für den Spieler
-        spieler1.steinSetzen("Stein1", 0, 0);
-        spieler1.steinSetzen("Stein2", 1, 1);
-        spieler1.steinSetzen("Stein3", 2, 2);
-
-        // Zeige die Positionen der gesetzten Steine an
-        System.out.println("Positionen der Steine nach dem Setzen:");
-        List<Stein> steine = spieler1.getSteine();
-        for (Stein stein : steine) {
-            System.out.println("Stein: " + stein.name + " Position: x=" + stein.steinX + ", y=" + stein.steinY);
-        }
-
-        // Ziehe einen Stein zu einer neuen Position
-        spieler1.steinZiehen("Stein1", 3, 3);
-
-        // Zeige die Positionen der Steine nach dem Ziehen an
-        System.out.println("\nPositionen der Steine nach dem Ziehen:");
-        for (Stein stein : steine) {
-            System.out.println("Stein: " + stein.name + " Position: x=" + stein.steinX + ", y=" + stein.steinY);
-        }
-    }
 }
 
