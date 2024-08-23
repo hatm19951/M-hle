@@ -23,7 +23,15 @@ public class Main {
 		spieler1.steinSetzen("dfd", 3,3);
 		Stein ersterStein = spieler1.getSteine().get(0);
 		System.out.println(ersterStein.id);
-		
+
+
+		JFrame frame = new JFrame("Mühle");
+		MuehleFeld feld = new MuehleFeld();
+
+		frame.add(feld);
+		frame.setSize(700, 500);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 	
 	
