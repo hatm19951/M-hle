@@ -12,6 +12,7 @@ public class Spielregeln {
     //private int gesetzteRoteSteine = 0; 
     //private int gesetzteBlaueSteine = 0; 
     private Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
+    public static boolean giebtMuehle = false;
 
     public Spielregeln() {
         // Alle Positionen im Array werden initialisiert
@@ -70,7 +71,7 @@ public class Spielregeln {
        
                     if (!gebildeteMuehlen.contains(aktuelleMuehle)) {
                         gebildeteMuehlen.add(aktuelleMuehle); // Speichere die Mühle als erkannt
-                        
+                        giebtMuehle = true;
                         return true;
                     }
                     
@@ -79,6 +80,7 @@ public class Spielregeln {
                 }
             }
         }
+        giebtMuehle = false;
         return false;
     }
 

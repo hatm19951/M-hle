@@ -225,6 +225,51 @@ public class MuehleFeld extends JPanel {
                 g.drawOval(points[i].x - 15, points[i].y - 15, 30, 30);
             }
         }
+        
+        zeichneSchwarzesQuadratInDerMitte(g);
+        zeichneAktuellenSpieler(g);
+        zeichneVerbleibendeSteine(g);
+        zeichneMuehle(g);
+    }
+    
+   /* private void zeichneAktuellenSpieler(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        g.drawString("Aktueller Spieler: " + aktuellerSpieler.getName(), RAND, 50);
+    }*/
+    
+    private void zeichneAktuellenSpieler(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        String text = "Aktueller Spieler: " + aktuellerSpieler.getName();
+        g.drawString(text, 275, 50);
+    }
+    
+    private void zeichneVerbleibendeSteine(Graphics g) {
+    	g.setColor(Color.RED);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        String sp1 = "Spieler1: " + spieler1.getVerbleibendeSteine();
+        String sp2 = "Spieler2: " + spieler2.getVerbleibendeSteine();
+        g.drawString(sp1, 50, 50);
+        g.setColor(Color.BLUE);
+        g.drawString(sp2, 650, 50);
+        
+    }
+    
+    private void zeichneMuehle(Graphics g) {
+    	if (spielregeln.giebtMuehle == true && aktuellerSpieler.getFarbe() == 's') {
+    		g.setColor(Color.RED);
+    		g.setFont(new Font("Arial", Font.BOLD, 30));
+    		g.drawString("Mühle", 360, 405);
+    		spielregeln.giebtMuehle = false;
+    		
+    	}else if(spielregeln.giebtMuehle == true){
+    		g.setColor(Color.BLUE);
+    		g.setFont(new Font("Arial", Font.BOLD, 30));
+    		g.drawString("Mühle", 360, 405);
+    		spielregeln.giebtMuehle = false;
+    	}
+    	
     }
 
     private void zeichneBrett(Graphics2D g2d) {
@@ -276,6 +321,14 @@ public class MuehleFeld extends JPanel {
         zeichneKreiseFuerQuadrat(g2d, aussenPositionen);
         zeichneKreiseFuerQuadrat(g2d, mittlerePositionen);
         zeichneKreiseFuerQuadrat(g2d, innerePositionen);
+    }
+    
+    private void zeichneSchwarzesQuadratInDerMitte(Graphics g) {
+        g.setColor(Color.black);
+        int quadratGroesse = 172;
+        int x = 315;
+        int y = 315;
+        g.fillRect(x, y, quadratGroesse, quadratGroesse);
     }
 
     private void zeichneKreiseFuerQuadrat(Graphics2D g2d, int[] positionen) {
