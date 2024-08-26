@@ -1,4 +1,4 @@
-package muehle
+package muehle;
 
 import java.awt.*;
 

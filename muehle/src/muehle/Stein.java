@@ -1,35 +1,43 @@
 package muehle;
 
+import java.awt.Color;
+
 public class Stein {
-	
-	/*@id ist einen Zahl, wo das Stein in der Feld "steinen" von Spielregelen Klass gespeichert wird.
-	 *@steinY position von Stein in der Y-Achse.
-	 *@steinX position von Stein in der X-Achse.
-	 *@farbe ist einen Char mit 'r' oder 'b', sodass man die Farbe von der Srein bestimmen kann, oder 
-	 *zum welcher Spieler gehört. 
-	 */
-	public String id;
-	public int steinY;
-	public int steinX;
-	public char farbe;
-	
-	
-	
-	public Stein(String i,int x, int y, char f) {
-		this.id = i;
-		this.steinX = x;
-		this.steinY = y;
-		this.farbe = f;
-	}
+    private int x; // X-Position auf dem Brett
+    private int y; // Y-Position auf dem Brett
+    private char farbe; // 'r' für Rot (Spieler 1) und 'b' für Blau (Spieler 2)
+    public Color ColorRand = Color.black;
+    
 
+    public Stein(int x, int y, char farbe) {
+        this.x = x;
+        this.y = y;
+        this.farbe = farbe;
+        
+    }
 
-	public void setSteinPosition(int x,int y) {
-		this.steinX = x;
-		this.steinY = y;
-	}
-	
-	public void getSteinPosition() {
-		System.out.println("x= " + this.steinX + "; y= " + this.steinY );
-	}
+    // Getter und Setter
+    public int getX() {
+        return x;
+    }
 
+    public int getY() {
+        return y;
+    }
+
+    public char getFarbe() {
+        return farbe;
+    }
+
+    public Color getRandFarbe () {
+		return this.ColorRand;
+    	
+    }
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    public void RandzuBlau(){
+    	ColorRand = Color.BLUE;
+    }
 }
