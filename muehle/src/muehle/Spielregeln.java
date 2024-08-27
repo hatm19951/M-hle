@@ -13,6 +13,7 @@ public class Spielregeln {
     //private int gesetzteBlaueSteine = 0; 
     private Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
     public static boolean giebtMuehle = false;
+    public static boolean gabEsEntfernung = false;
 
     public Spielregeln() {
         // Alle Positionen im Array werden initialisiert
@@ -84,7 +85,6 @@ public class Spielregeln {
         return false;
     }
 
-    
   
     public boolean zieheStein(int vonPosition, int zuPosition, Spieler aktuellerSpieler, Spielregeln spielregeln) {
         if (vonPosition < 0 || vonPosition >= steine.length || zuPosition < 0 || zuPosition >= steine.length) {
@@ -148,16 +148,12 @@ public class Spielregeln {
 	    return false;
 	}
 
-
-   
-   
-
-   private int[] getBenachbartePositionen(int position) {
+   public int[] getBenachbartePositionen(int position) {
 	    switch (position) {
 	        case 0: return new int[]{1, 9}; 
 	        case 1: return new int[]{0, 2, 4}; 
 	        case 2: return new int[]{1, 14}; 
-	        case 3: return new int[]{4, 9, 10}; 
+	        case 3: return new int[]{4,10}; 
 	        case 4: return new int[]{1, 3, 5, 7}; 
 	        case 5: return new int[]{4,13}; 
 	        case 6: return new int[]{7,11}; 
@@ -173,7 +169,7 @@ public class Spielregeln {
 	        case 16: return new int[]{15,17,19}; 
 	        case 17: return new int[]{12,16}; 
 	        case 18: return new int[]{10,19}; 
-	        case 19: return new int[]{16, 18, 22}; 
+	        case 19: return new int[]{16, 18,20, 22}; 
 	        case 20: return new int[]{13,19}; 
 	        case 21: return new int[]{9,22}; 
 	        case 22: return new int[]{19,21,23}; 
@@ -214,6 +210,13 @@ public class Spielregeln {
             }
         }
         return false; // Die Position ist nicht Teil einer Mühle
+    }
+    
+    public void ausgewähltStein(int vonPosition, Spieler aktuellerSpieler) {
+    	if(steine[vonPosition].getFarbe() == aktuellerSpieler.getFarbe()) {
+    		steine[vonPosition].ausgewählt = true;
+    	}
+    	
     }
     
 }  

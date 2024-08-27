@@ -10,24 +10,10 @@ import javax.swing.JFrame;
 
 public class Main {
 	public static void main(String[] args) {
-		
-		JFrame frame = new JFrame("Mühle");
-		MuehleFeld feld = new MuehleFeld();
-		
-		try {
-            Image icon = ImageIO.read(new File("res/muehle.png"));
-            frame.setIconImage(icon);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-		
-		frame.add(feld);
-		frame.setSize(800, 800);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-	}
-	
-	
 
+		Spielfenster fenster = new Spielfenster();
+		fenster.setVisible(true);
+		
+	}
 }
 
