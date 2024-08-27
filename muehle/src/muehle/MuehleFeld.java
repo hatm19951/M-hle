@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Set;
 
 public class MuehleFeld extends JPanel {
 
@@ -45,8 +46,8 @@ public class MuehleFeld extends JPanel {
         this.setPreferredSize(new Dimension(700, 600));
 
         spielregeln = new Spielregeln();
-        spieler1 = new Spieler("Spieler 1", 's');
-        spieler2 = new Spieler("Spieler 2", 'w');
+        spieler1 = new Spieler("Spieler 1", 'r');
+        spieler2 = new Spieler("Spieler 2", 'b');
         aktuellerSpieler = spieler1;
 
         this.addMouseListener(new MouseAdapter() {
@@ -70,9 +71,7 @@ public class MuehleFeld extends JPanel {
             handleSteinLoeschen(e);
         }
     }
-
-
-
+    
     private void handleSteinSetzen(MouseEvent e) {
     	
         for (int i = 0; i < points.length; i++) {
@@ -219,18 +218,18 @@ public class MuehleFeld extends JPanel {
         super.paintComponent(g);
         
         zeichneBrett((Graphics2D) g);
-        zeichneSteine(g);
-        zeichneAusgewähltKreis((Graphics2D) g);
         zeichneSchwarzesQuadratInDerMitte(g);
+        zeichneSteine((Graphics2D) g);
+        zeichneAusgewähltKreis((Graphics2D) g);
         zeichneAktuellenSpieler(g);
         zeichneVerbleibendeSteine(g);
         zeichneMuehle(g);
     }
     
-    private void zeichneSteine(Graphics g) {
+    private void zeichneSteine(Graphics2D g) {
     	for (int i = 0; i < spielregeln.getSteine().length; i++) {
             if (spielregeln.getSteine()[i] != null) {
-                g.setColor(spielregeln.getSteine()[i].getFarbe() == 's' ? Color.RED : Color.BLUE);
+                g.setColor(spielregeln.getSteine()[i].getFarbe() == 'r' ? Color.RED : Color.BLUE);
                 g.fillOval(points[i].x - 15, points[i].y - 15, 30, 30);
                 g.setColor(Color.BLACK);
                 g.drawOval(points[i].x - 15, points[i].y - 15, 30, 30);
@@ -255,8 +254,6 @@ public class MuehleFeld extends JPanel {
         }
     }
     
-    
-    
     private void zeichneAktuellenSpieler(Graphics g) {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 18));
@@ -273,12 +270,11 @@ public class MuehleFeld extends JPanel {
         String sp2 = "Spieler2: " + spieler2.getVerbleibendeSteine();
         g.drawString(sp1, 50, 50);
         g.setColor(Color.BLUE);
-        g.drawString(sp2, 650, 50);
-        
+        g.drawString(sp2, 650, 50);   
     }
     
     private void zeichneMuehle(Graphics g) {
-    	if (Spielregeln.giebtMuehle == true && aktuellerSpieler.getFarbe() == 's') {
+    	if (Spielregeln.giebtMuehle == true && aktuellerSpieler.getFarbe() == 'r') {
     		g.setColor(Color.RED);
     		g.setFont(new Font("Arial", Font.BOLD, 30));
     		g.drawString("Mühle", 360, 405);
@@ -365,7 +361,7 @@ public class MuehleFeld extends JPanel {
     }
 
     private void zeichneSpielerBereiche(Graphics2D g2d) {
-    	if(aktuellerSpieler.getFarbe() == 's' && Spielregeln.gabEsEntfernung ) {
+    	if(aktuellerSpieler.getFarbe() == 'r' && Spielregeln.gabEsEntfernung ) {
     		int verschibungInYAchse = 0;
     		zeichneSpielerBereich(g2d, RAND / 2,verschibungInYAchse, Color.RED);
     		Spielregeln.gabEsEntfernung = false;
@@ -382,7 +378,20 @@ public class MuehleFeld extends JPanel {
         g2d.setColor(farbe);
             int y = RAND + verschibungInYAchse * SPIELER_PUNKT_ABSTAND;
             zeichneKreis(g2d, x, y, SPIELER_PUNKT_RADIUS);
-            
-        
+    }
+    
+    public void neuStartSpiel() {
+    	
+        spielregeln = new Spielregeln();
+        spielregeln.giebtMuehle = false;
+        spieler1 = new Spieler("Spieler 1", 'r');
+        spieler2 = new Spieler("Spieler 2", 'b');
+        aktuellerSpieler = spieler1;
+        imSetzModus = true;
+        imZugModus = false;
+        imLoeschModus = false;
+        ausgewaehltePosition = -1;
+        warSteinAusgewaehlt = false;
+        repaint();
     }
 }

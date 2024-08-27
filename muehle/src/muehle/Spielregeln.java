@@ -11,7 +11,7 @@ public class Spielregeln {
     private Stein[] steine = new Stein[24]; 
     //private int gesetzteRoteSteine = 0; 
     //private int gesetzteBlaueSteine = 0; 
-    private Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
+    public Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
     public static boolean giebtMuehle = false;
     public static boolean gabEsEntfernung = false;
 
@@ -21,8 +21,8 @@ public class Spielregeln {
             steine[i] = null;
         }
     }
-    private int gesetzteSchwarzSteine = 0; 
-    private int gesetzteWeissSteine = 0; 
+    private int gesetzteRotenSteine = 0; 
+    private int gesetzteBlauenSteine = 0; 
     // Setzt einen Stein auf das Spielfeld, wenn die Position frei ist und noch Steine verfügbar sind
     public boolean setzeStein(int position, char farbe) {
         if (position < 0 || position >= steine.length || steine[position] != null) {
@@ -30,10 +30,10 @@ public class Spielregeln {
         }
 
         // Überprüfen, ob noch Steine übrig sind
-        if (farbe == 's' && gesetzteSchwarzSteine >= 9) {
+        if (farbe == 'r' && gesetzteRotenSteine >= 9) {
             System.out.println("Keine schwarze Steine mehr zum Setzen übrig.");
             return false;
-        } else if (farbe == 'w' && gesetzteWeissSteine >= 9) {
+        } else if (farbe == 'b' && gesetzteBlauenSteine >= 9) {
             System.out.println("Keine weisse Steine mehr zum Setzen übrig.");
             return false;
         }
@@ -41,10 +41,10 @@ public class Spielregeln {
        
         steine[position] = new Stein(position, position, farbe);
 
-        if (farbe == 's') {
-            gesetzteSchwarzSteine++;
-        } else if (farbe == 'w') {
-            gesetzteWeissSteine++;
+        if (farbe == 'r') {
+            gesetzteRotenSteine++;
+        } else if (farbe == 'b') {
+            gesetzteBlauenSteine++;
         }
 
         return true;
@@ -112,9 +112,9 @@ public class Spielregeln {
    public boolean kannSteinZiehen(char farbe) {
         // Logik zur Überprüfung, ob der Spieler mit der angegebenen Farbe noch ziehen kann
         // Dies kann z.B. prüfen, ob es noch gültige Züge gibt
-    	 if (farbe == 's' && gesetzteSchwarzSteine >= 9) {
+    	 if (farbe == 'r' && gesetzteRotenSteine >= 9) {
               return true;
-         } else if (farbe == 'w' && gesetzteWeissSteine >= 9) {
+         } else if (farbe == 'b' && gesetzteBlauenSteine >= 9) {
                return true;
          }
     	
