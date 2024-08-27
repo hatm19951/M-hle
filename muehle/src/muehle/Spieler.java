@@ -4,8 +4,8 @@ package muehle;
 public class Spieler {
     private String name;       // Name des Spielers
     private char farbe;        // 'r' für Rot oder 'b' für Blau
-    private int verbleibendeSteine; // Anzahl der Steine, die der Spieler noch setzen kann
-    private int gesetzteSteine;
+    public int verbleibendeSteine; // Anzahl der Steine, die der Spieler noch setzen kann
+    public int gesetzteSteine;
     private int maximaleSteine = 9;// Anzahl der bereits gesetzten Steine
 
     public Spieler(String name, char farbe) {

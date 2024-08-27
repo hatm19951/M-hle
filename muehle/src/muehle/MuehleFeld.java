@@ -224,6 +224,7 @@ public class MuehleFeld extends JPanel {
         zeichneAktuellenSpieler(g);
         zeichneVerbleibendeSteine(g);
         zeichneMuehle(g);
+        zeichneGewinner((Graphics2D) g);
     }
     
     private void zeichneSteine(Graphics2D g) {
@@ -266,11 +267,12 @@ public class MuehleFeld extends JPanel {
     private void zeichneVerbleibendeSteine(Graphics g) {
     	g.setColor(Color.RED);
         g.setFont(new Font("Arial", Font.BOLD, 18));
-        String sp1 = "Spieler1: " + spieler1.getVerbleibendeSteine();
-        String sp2 = "Spieler2: " + spieler2.getVerbleibendeSteine();
-        g.drawString(sp1, 50, 50);
+        g.drawString("Spieler1: " + spieler1.getVerbleibendeSteine(), 50, 50);
+        g.drawString("gesetzte Steine: " + spieler1.getAktuelleSteineAufFeld(spielregeln), 50, 80);
+        
         g.setColor(Color.BLUE);
-        g.drawString(sp2, 650, 50);   
+        g.drawString("Spieler2: " + spieler2.getVerbleibendeSteine(), 600, 50);
+        g.drawString("gesetzte Steine: " + spieler2.getAktuelleSteineAufFeld(spielregeln), 600, 80);
     }
     
     private void zeichneMuehle(Graphics g) {
@@ -378,6 +380,25 @@ public class MuehleFeld extends JPanel {
         g2d.setColor(farbe);
             int y = RAND + verschibungInYAchse * SPIELER_PUNKT_ABSTAND;
             zeichneKreis(g2d, x, y, SPIELER_PUNKT_RADIUS);
+    }
+    
+    private void zeichneGewinner(Graphics2D g) {
+    	if((spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) <3) || (spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) <3) ) {
+    		if(aktuellerSpieler == spieler2) {
+    			g.setColor(Color.RED);
+    			g.setFont(new Font("Arial", Font.BOLD, 24));
+        		g.drawString("Spieler1", 353, 370);
+        		g.drawString("hat", 385, 400);
+        		g.drawString("gewonnen", 347, 430);
+    		} else {
+    			g.setColor(Color.BLUE);
+    			g.setFont(new Font("Arial", Font.BOLD, 24));
+        		g.drawString("Spieler2", 353, 370);
+        		g.drawString("hat", 385, 400);
+        		g.drawString("gewonnen", 347, 430);
+    		}
+    	}
+    	
     }
     
     public void neuStartSpiel() {
