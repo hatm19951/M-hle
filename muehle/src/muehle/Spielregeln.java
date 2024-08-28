@@ -1,40 +1,46 @@
 package muehle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 public class Spielregeln {
 
     private Stein[] steine = new Stein[24]; 
-    //private int gesetzteRoteSteine = 0; 
-    //private int gesetzteBlaueSteine = 0; 
-    public Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
+    private Set<Set<Integer>> gebildeteMuehlen = new HashSet<>();
     public static boolean giebtMuehle = false;
-    public static boolean gabEsEntfernung = false;
+    public boolean esGiebtRemis = false;
 
     public Spielregeln() {
-        // Alle Positionen im Array werden initialisiert
         for (int i = 0; i < steine.length; i++) {
             steine[i] = null;
         }
     }
+
+    public Stein[] getSteine() {
+        return steine;
+    }
+    
     private int gesetzteRotenSteine = 0; 
     private int gesetzteBlauenSteine = 0; 
-    // Setzt einen Stein auf das Spielfeld, wenn die Position frei ist und noch Steine verfügbar sind
+    private boolean imSetzeModus;
+    
     public boolean setzeStein(int position, char farbe) {
         if (position < 0 || position >= steine.length || steine[position] != null) {
-            return false; // Ungültige Position oder Position bereits belegt
+            return false; 
         }
 
-        // Überprüfen, ob noch Steine übrig sind
+        
         if (farbe == 'r' && gesetzteRotenSteine >= 9) {
             System.out.println("Keine schwarze Steine mehr zum Setzen übrig.");
+            imSetzeModus = false;
             return false;
         } else if (farbe == 'b' && gesetzteBlauenSteine >= 9) {
             System.out.println("Keine weisse Steine mehr zum Setzen übrig.");
+            imSetzeModus = false;
             return false;
         }
 
@@ -50,43 +56,7 @@ public class Spielregeln {
         return true;
     }
 
-   
-    public boolean hatMuehle(int position) {
-        int[][] muehlen = {
-            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, 
-            {9, 10, 11}, {12, 13, 14}, {15, 16, 17},
-            {18, 19, 20}, {21, 22, 23},
-            {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, 
-            {1, 4, 7}, {16, 19, 22},
-            {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
-        };
-
-        for (int[] muehle : muehlen) {
-            if (steine[muehle[0]] != null && steine[muehle[1]] != null && steine[muehle[2]] != null) {
-                if (steine[muehle[0]].getFarbe() == steine[muehle[1]].getFarbe() &&
-                    steine[muehle[0]].getFarbe() == steine[muehle[2]].getFarbe()) {
-
-                    
-                	Set<Integer> aktuelleMuehle = new HashSet<>(Arrays.asList(muehle[0], muehle[1], muehle[2]));
-
-       
-                    if (!gebildeteMuehlen.contains(aktuelleMuehle)) {
-                        gebildeteMuehlen.add(aktuelleMuehle); // Speichere die Mühle als erkannt
-                        giebtMuehle = true;
-                        return true;
-                    }
-                    
-
-                  
-                }
-            }
-        }
-        giebtMuehle = false;
-        return false;
-    }
-
-  
-    public boolean zieheStein(int vonPosition, int zuPosition, Spieler aktuellerSpieler, Spielregeln spielregeln) {
+    public boolean zieheStein(int vonPosition, int zuPosition, Spieler aktuellerSpieler, Spielregeln spielregeln, Spieler spieler1, Spieler spieler2) {
         if (vonPosition < 0 || vonPosition >= steine.length || zuPosition < 0 || zuPosition >= steine.length) {
             return false; 
         }
@@ -104,7 +74,12 @@ public class Spielregeln {
         
         Set<Integer> vonPositionSet = new HashSet<>(Arrays.asList(vonPosition));
         gebildeteMuehlen.removeIf(muehle -> muehle.contains(vonPosition));
-
+        
+        aktuellerSpieler = (aktuellerSpieler == spieler1) ? spieler2 : spieler1;
+        if (hatVerloren(aktuellerSpieler)|| kannZiehen(aktuellerSpieler)) {
+        	zeigeSpielEndeNachricht(aktuellerSpieler, spieler1, spieler2);
+            
+        }
 
         return true;
     }
@@ -153,7 +128,7 @@ public class Spielregeln {
 	        case 0: return new int[]{1, 9}; 
 	        case 1: return new int[]{0, 2, 4}; 
 	        case 2: return new int[]{1, 14}; 
-	        case 3: return new int[]{4,10}; 
+	        case 3: return new int[]{4, 9, 10}; 
 	        case 4: return new int[]{1, 3, 5, 7}; 
 	        case 5: return new int[]{4,13}; 
 	        case 6: return new int[]{7,11}; 
@@ -169,7 +144,7 @@ public class Spielregeln {
 	        case 16: return new int[]{15,17,19}; 
 	        case 17: return new int[]{12,16}; 
 	        case 18: return new int[]{10,19}; 
-	        case 19: return new int[]{16, 18,20, 22}; 
+	        case 19: return new int[]{16, 18, 20, 22}; 
 	        case 20: return new int[]{13,19}; 
 	        case 21: return new int[]{9,22}; 
 	        case 22: return new int[]{19,21,23}; 
@@ -178,22 +153,59 @@ public class Spielregeln {
 	    }
 	}
 
-   
-    // Gibt die aktuelle Position der Steine zurück
-    public Stein[] getSteine() {
-        return steine;
+    public boolean hatMuehle(int position) {
+        int[][] muehlen = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, 
+            {9, 10, 11}, {12, 13, 14}, {15, 16, 17},
+            {18, 19, 20}, {21, 22, 23},
+            {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, 
+            {1, 4, 7}, {16, 19, 22},
+            {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
+        };
+
+        for (int[] muehle : muehlen) {
+            if (steine[muehle[0]] != null && steine[muehle[1]] != null && steine[muehle[2]] != null) {
+                if (steine[muehle[0]].getFarbe() == steine[muehle[1]].getFarbe() &&
+                    steine[muehle[0]].getFarbe() == steine[muehle[2]].getFarbe()) {
+
+                    
+                	Set<Integer> aktuelleMuehle = new HashSet<>(Arrays.asList(muehle[0], muehle[1], muehle[2]));
+
+       
+                    if (!gebildeteMuehlen.contains(aktuelleMuehle)) {
+                        gebildeteMuehlen.add(aktuelleMuehle); // Speichere die Mühle als erkannt
+                        giebtMuehle = true;
+                        return true;
+                    }
+                    
+
+                  
+                }
+            }
+        }
+        giebtMuehle = false;
+        return false;
     }
 
-    public boolean loschen(int position, char aktuellerSpielerFarbe) {
+
+    public boolean loschen(int position, char aktuellerSpielerFarbe, Spieler spieler1, Spieler spieler2) {
         // Überprüfen, ob der ausgewählte Stein ein gegnerischer Stein ist
         if (steine[position] != null && steine[position].getFarbe() != aktuellerSpielerFarbe) {
-            // Überprüfen, ob der Stein Teil einer Mühle ist
-            if (positionTeileinMuehle(position)) {
+            // Überprüfen, ob alle gegnerischen Steine Teil einer Mühle sind
+            if (alleGegnerischenSteineInMuehle(aktuellerSpielerFarbe)) {
+                System.out.println("Stein an Position " + position + " entfernt (obwohl Teil einer Mühle, da keine andere Wahl besteht).");
+                return false; 
+            } else if (positionTeileinMuehle(position)) {
                 System.out.println("Der Stein an Position " + position + " ist Teil einer Mühle und kann nicht gelöscht werden.");
                 return false; // Stein kann nicht gelöscht werden
             } else {
                 steine[position] = null; 
-                System.out.println("Stein an Position " + position + " entfernt.");
+                Spieler gegner = (aktuellerSpielerFarbe == spieler1.getFarbe()) ? spieler2 : spieler1;
+                if (hatVerloren(gegner) && !imSetzeModus) {
+                    zeigeVerlustNachricht(gegner);
+                    return false;
+                }
+
                 return true; 
             }
         } else {
@@ -212,12 +224,80 @@ public class Spielregeln {
         return false; // Die Position ist nicht Teil einer Mühle
     }
     
+    
+    
     public void ausgewähltStein(int vonPosition, Spieler aktuellerSpieler) {
     	if(steine[vonPosition].getFarbe() == aktuellerSpieler.getFarbe()) {
     		steine[vonPosition].ausgewählt = true;
     	}
     	
     }
+
+    private boolean alleGegnerischenSteineInMuehle(char aktuellerSpielerFarbe) {
+        for (int i = 0; i < steine.length; i++) {
+            if (steine[i] != null && steine[i].getFarbe() != aktuellerSpielerFarbe) {
+                if (!positionTeileinMuehle(i)) {
+                    return false; // Es gibt mindestens einen gegnerischen Stein, der nicht in einer Mühle ist
+                }
+            }
+        }
+        esGiebtRemis = true;
+        return true; // Alle gegnerischen Steine sind Teil einer Mühle
+    }
     
-}  
-        	
+    public boolean hatVerloren(Spieler spieler) {
+        // Zähle die Steine des Spielers
+        int steineAufFeld = 0;
+        for (Stein stein : steine) {
+            if (stein != null && stein.getFarbe() == spieler.getFarbe()) {
+                steineAufFeld++;
+            }
+        }
+
+        if (steineAufFeld < 3 && spieler.getVerbleibendeSteine() == 0) {
+            System.out.println(spieler.getName() + " hat verloren, da er nur noch " + steineAufFeld + " Steine hat.");
+            return true;
+        }
+		return false;
+    }
+        // Überprüfe, ob der Spieler keine gültigen Züge mehr machen kann
+    public boolean kannZiehen(Spieler spieler) {
+        boolean kannZiehen = false;
+        for (int i = 0; i < steine.length; i++) {
+            if (steine[i] != null && steine[i].getFarbe() == spieler.getFarbe()) {
+                int[] benachbartePositionen = getBenachbartePositionen(i);
+                for (int pos : benachbartePositionen) {
+                    if (steine[pos] == null) {
+                        kannZiehen = true;
+                        break;
+                    }
+                }
+            }
+            if (kannZiehen) break;
+        }
+
+        if (!kannZiehen) {
+            System.out.println(spieler.getName() + " hat verloren, da er keine gültigen Züge mehr machen kann.");
+            return true;
+        }
+
+        return false;
+    }
+
+    public void zeigeSpielEndeNachricht(Spieler verlierer, Spieler spieler1, Spieler spieler2) {
+        String gewinnerName = verlierer == spieler1 ? spieler2.getName() : spieler1.getName();
+        JOptionPane.showMessageDialog(null, "Spiel beendet! " + verlierer.getName() + " hat verloren.\n" + gewinnerName + " gewinnt!", 
+                                      "Spiel beendet", JOptionPane.INFORMATION_MESSAGE);
+
+        // Beenden des Spiels durch Deaktivieren der Oberfläche oder Schließen des Fensters
+        System.exit(0); // Beendet die gesamte Anwendung, kann auch anders gehandhabt werden
+    }
+    public void zeigeVerlustNachricht(Spieler verlierer) {
+        System.out.println("Spiel beendet! " + verlierer.getName() + " hat verloren.");
+        // Hier kannst du zusätzlich GUI-Komponenten verwenden, um eine Nachricht anzuzeigen oder das Spiel zu beenden
+        JOptionPane.showMessageDialog(null, "Spiel beendet! " + verlierer.getName() + " hat verloren.");
+        System.exit(0); // Beendet das Spiel
+    }
+
+    
+}

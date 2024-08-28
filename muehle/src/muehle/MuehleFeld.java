@@ -59,6 +59,9 @@ public class MuehleFeld extends JPanel {
         });
     }
     private void handleMouseClick(MouseEvent e) {
+    	if((spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) <3) || (spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) <3) || spielregeln.esGiebtRemis) {
+    		return;
+    	}
         System.out.println("Handling mouse click at: " + e.getPoint());
         if (imSetzModus) {
             System.out.println("Setzmodus aktiv");
@@ -112,7 +115,7 @@ public class MuehleFeld extends JPanel {
     }
 
 
-    private void handleSteinZiehen(MouseEvent e) {
+private void handleSteinZiehen(MouseEvent e) {
     	
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
@@ -129,17 +132,17 @@ public class MuehleFeld extends JPanel {
                     }
                 } else {
                     if (ausgewaehltePosition != -1) {
-                        if (spielregeln.zieheStein(ausgewaehltePosition, i, aktuellerSpieler,spielregeln)) {
+                        if (spielregeln.zieheStein(ausgewaehltePosition, i, aktuellerSpieler,spielregeln,spieler1,spieler2)) {
+                        	System.out.println(aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln));
                             System.out.println("Stein bewegt von Position " + ausgewaehltePosition + " zu Position " + i);
                             warSteinAusgewaehlt = false;
                             ausgewaehltePosition = -1;
-
+                           
                             // Mühlenprüfung nach dem Ziehen
                             if (spielregeln.hatMuehle(i)) {
                                 System.out.println("Mühle gebildet an Position " + i);
                                 imZugModus = false;
-                                imLoeschModus = true;
-                                
+                                imLoeschModus = true;   
                             } else {
                                 wechsleSpieler();
                             }
@@ -157,34 +160,37 @@ public class MuehleFeld extends JPanel {
     }
     
 
-    private void handleSteinLoeschen(MouseEvent e) {
-        for (int i = 0; i < points.length; i++) {
-            Point p = points[i];
-            if (e.getPoint().distance(p) < 20) {
-                if (spielregeln.getSteine()[i] != null &&
-                    spielregeln.getSteine()[i].getFarbe() != aktuellerSpieler.getFarbe()) {
-                	 
-                    if (spielregeln.loschen(i, aktuellerSpieler.getFarbe())) {
-                        System.out.println("Stein an Position " + i + " entfernt.");
-                        imLoeschModus = false; // Löschmodus beenden
-                        spielregeln.giebtMuehle = false;
-                        wechsleSpieler();
-                        if (spielregeln.hatNochZuege(aktuellerSpieler.getFarbe())) {
-                            imZugModus = true; // Zurück in den Zugmodus, wenn noch Züge möglich sind
-                        } else {
-                            imSetzModus = true; // Ansonsten zurück zum Setzen, falls keine Züge mehr möglich
-                        }
-                        repaint();
-                        break;
+private void handleSteinLoeschen(MouseEvent e) {
+    for (int i = 0; i < points.length; i++) {
+        Point p = points[i];
+        if (e.getPoint().distance(p) < 20) {
+            if (spielregeln.getSteine()[i] != null &&
+                spielregeln.getSteine()[i].getFarbe() != aktuellerSpieler.getFarbe()) {
+            	 
+                if (spielregeln.loschen(i, aktuellerSpieler.getFarbe(),spieler1,spieler2)) {
+                    System.out.println("Stein an Position " + i + " entfernt.");
+                    System.out.println(aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln));
+                                    
+                    imLoeschModus = false; // Löschmodus beenden
+                    spielregeln.giebtMuehle = false;
+                    wechsleSpieler();
+                    if (spielregeln.hatNochZuege(aktuellerSpieler.getFarbe())) {
+                        imZugModus = true; // Zurück in den Zugmodus, wenn noch Züge möglich sind
                     } else {
-                        System.out.println("Fehler beim Löschen des Steins an Position " + i);
+                        imSetzModus = true; // Ansonsten zurück zum Setzen, falls keine Züge mehr möglich
                     }
+                    repaint();
+                    break;
                 } else {
-                    System.out.println("Ungültiger Löschversuch an Position " + i);
+                    System.out.println("Fehler beim Löschen des Steins an Position " + i);
                 }
+            } else {
+                System.out.println("Ungültiger Löschversuch an Position " + i);
             }
         }
     }
+}
+
 
 
     private void wechsleSpieler() {
@@ -225,6 +231,7 @@ public class MuehleFeld extends JPanel {
         zeichneVerbleibendeSteine(g);
         zeichneMuehle(g);
         zeichneGewinner((Graphics2D) g);
+        zeichneRemis ((Graphics2D) g);
     }
     
     private void zeichneSteine(Graphics2D g) {
@@ -243,14 +250,16 @@ public class MuehleFeld extends JPanel {
             if (spielregeln.getSteine()[i] != null && spielregeln.getSteine()[i].ausgewählt ) {
                 g.setColor(Color.YELLOW);
                 zeichneKreis(g, points[i].x, points[i].y, 30);
-                int[] benachbartePositionen = spielregeln.getBenachbartePositionen(i);
-                for (int pos : benachbartePositionen) {
-    	            if (spielregeln.getSteine()[pos] == null) {
-    	            	g.setColor(Color.YELLOW);
-    	                zeichneKreis(g, points[pos].x, points[pos].y, 30);
-    	            }
-                }
+                if(imZugModus) {
+                	int[] benachbartePositionen = spielregeln.getBenachbartePositionen(i);
+                	for (int pos : benachbartePositionen) {
+                		if (spielregeln.getSteine()[pos] == null) {
+                			g.setColor(Color.YELLOW);
+                			zeichneKreis(g, points[pos].x, points[pos].y, 30);
+                		}
+                	}
                 spielregeln.getSteine()[i].ausgewählt = false;
+            }
             }
         }
     }
@@ -260,7 +269,7 @@ public class MuehleFeld extends JPanel {
         g.setFont(new Font("Arial", Font.BOLD, 18));
         String text = "Aktueller Spieler: " + aktuellerSpieler.getName();
         g.drawString(text, 275, 50);
-        String text1 = "Phase: " + aktuellerSpieler.getName();
+        //String text1 = "Phase: " + aktuellerSpieler.getName();
     }
     
     
@@ -294,7 +303,6 @@ public class MuehleFeld extends JPanel {
         zeichneVerschachtelteQuadrate(g2d);
         zeichnePunkte(g2d);
         zeichneVerbindungslinien(g2d);
-        zeichneSpielerBereiche(g2d);
         logik.drawGame(g2d);
     }
 
@@ -362,19 +370,6 @@ public class MuehleFeld extends JPanel {
         g2d.drawOval(angepasstesX, angepasstesY, radius, radius);
     }
 
-    private void zeichneSpielerBereiche(Graphics2D g2d) {
-    	if(aktuellerSpieler.getFarbe() == 'r' && Spielregeln.gabEsEntfernung ) {
-    		int verschibungInYAchse = 0;
-    		zeichneSpielerBereich(g2d, RAND / 2,verschibungInYAchse, Color.RED);
-    		Spielregeln.gabEsEntfernung = false;
-    		verschibungInYAchse++;
-    	} else if(Spielregeln.gabEsEntfernung){
-    		int verschibungInYAchse = 0;
-    		zeichneSpielerBereich(g2d, BRETT_GROESSE - RAND / 2,verschibungInYAchse, Color.BLUE);
-    		Spielregeln.gabEsEntfernung = false;
-    		verschibungInYAchse++;
-    		}
-    }
 
     private void zeichneSpielerBereich(Graphics2D g2d, int x,int verschibungInYAchse, Color farbe) {
         g2d.setColor(farbe);
@@ -399,6 +394,18 @@ public class MuehleFeld extends JPanel {
     		}
     	}
     	
+    }
+    
+    private void zeichneRemis (Graphics2D g) {
+    	if(spielregeln.esGiebtRemis) {
+    		zeichneSchwarzesQuadratInDerMitte(g);
+    		g.setColor(Color.GREEN);
+			g.setFont(new Font("Arial", Font.BOLD, 24));
+    		g.drawString("Remis", 363, 365);
+    		g.setFont(new Font("Arial", Font.BOLD, 12));
+    		g.drawString("Alle Steine von Gegner",340, 385);
+    		g.drawString("sind Teil einen Mülle",345, 405);
+    	}
     }
     
     public void neuStartSpiel() {
