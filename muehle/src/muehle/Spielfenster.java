@@ -1,8 +1,11 @@
 package muehle;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -25,6 +28,13 @@ public class Spielfenster extends JFrame {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Menu();
+		
+		this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+             
+            }
+        });
 	}
 	
 	private void Menu() {
@@ -67,30 +77,64 @@ public class Spielfenster extends JFrame {
 	}
 	
 	private void inhaltDebugModusMenu(JMenuBar menuBar,JMenu debugModusMenu) {
+		JMenuItem debugModus = new JMenuItem("Debug-Modus akktivieren");
 		JMenuItem zeichneBlau = new JMenuItem("blauen platzieren");
         JMenuItem zeichneRot = new JMenuItem("roten platzieren");
 
+        debugModusMenu.add(debugModus);
         debugModusMenu.add(zeichneBlau);
         debugModusMenu.add(zeichneRot);
+        debugaktivieren(debugModus);
         zeichneBlauAction(zeichneBlau);
         zeichneRotAction(zeichneRot);
         setJMenuBar(menuBar);
+	}
+	
+	private void debugaktivieren(JMenuItem a){
+		a.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	
+            	if(!MuehleFeld.debugModus) {
+            		MuehleFeld.debugModus = true;
+            		a.setText("Debug-Modus deakktivieren");
+                	System.out.println("Debug-Modus aktiv");
+                	}else {
+                		MuehleFeld.debugModus = false;	
+                		System.out.println("Debug-Modus deaktiv");
+                		a.setText("Debug-Modus akktivieren");
+                	}
+            }
+            
+        });
 	}
 	
 	private void zeichneBlauAction(JMenuItem a){
 		a.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0); // Programm beenden
+            	if(!MuehleFeld.blauAdd) {
+            	MuehleFeld.aktuellerSpieler = MuehleFeld.spieler2;
+            	System.out.println("Blau aktiv");
+            	}else {
+            		MuehleFeld.blauAdd = false;
+            		System.out.println("Blau deaktiv");
+            	}
             }
+           
+            
         });
 	}
+	
 	
 	private void zeichneRotAction(JMenuItem a){
 		a.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	feld.neuStartSpiel();
+            	
+                	MuehleFeld.aktuellerSpieler = MuehleFeld.spieler1;
+                	
+ 
             }
         });
 	}

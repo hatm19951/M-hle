@@ -3,9 +3,11 @@ package muehle;
 import javax.swing.*;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Set;
+//import java.util.Set;
 
 public class MuehleFeld extends JPanel {
 
@@ -15,9 +17,9 @@ public class MuehleFeld extends JPanel {
     private static final int PUNKT_RADIUS = 20;
     private static final int SPIELER_PUNKT_RADIUS = 30;
     private static final int SPIELER_PUNKT_ABSTAND = 40;
-    private Spielregeln spielregeln; 
-    private Spieler spieler1, spieler2; 
-    private Spieler aktuellerSpieler; 
+    public static Spielregeln spielregeln; 
+    public static Spieler spieler1, spieler2; 
+    public static Spieler aktuellerSpieler; 
     
     private boolean imSetzModus = true;
     private boolean imZugModus = false;
@@ -26,10 +28,13 @@ public class MuehleFeld extends JPanel {
     private int ausgewaehltePosition = -1; 
     private boolean warSteinAusgewaehlt = false;
     
+    public static boolean debugModus = false;
+    public static boolean blauAdd = false;
+    
 
    private MuehleLogik logik;
    
-   private final Point[] points = {
+   public static final Point[] points = {
 		    /*0*/ new Point(100, 100), new Point(400, 100), new Point(700, 100),
 		    /*3*/ new Point(200, 200), new Point(400, 200), new Point(600, 200),
 		    /*6*/new Point(300, 300), new Point(400, 300), new Point(500, 300),
@@ -54,11 +59,11 @@ public class MuehleFeld extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 handleMouseClick(e);
-             
             }
         });
     }
     private void handleMouseClick(MouseEvent e) {
+    	
     	if((spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) <3) || (spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) <3) || spielregeln.esGiebtRemis) {
     		return;
     	}
@@ -76,9 +81,9 @@ public class MuehleFeld extends JPanel {
     }
     
     private void handleSteinSetzen(MouseEvent e) {
-    	
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
+            
             if (e.getPoint().distance(p) < 20) { // Klick innerhalb eines Radius von 20 Pixeln
                 // Stein setzen
                 if (spielregeln.setzeStein(i, aktuellerSpieler.getFarbe())) {
@@ -112,9 +117,8 @@ public class MuehleFeld extends JPanel {
                 break;
             }
         }
-    }
-
-
+    }  
+              
 private void handleSteinZiehen(MouseEvent e) {
     	
         for (int i = 0; i < points.length; i++) {
@@ -172,7 +176,7 @@ private void handleSteinLoeschen(MouseEvent e) {
                     System.out.println(aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln));
                                     
                     imLoeschModus = false; // Löschmodus beenden
-                    spielregeln.giebtMuehle = false;
+                    Spielregeln.giebtMuehle = false;
                     wechsleSpieler();
                     if (spielregeln.hatNochZuege(aktuellerSpieler.getFarbe())) {
                         imZugModus = true; // Zurück in den Zugmodus, wenn noch Züge möglich sind
@@ -232,6 +236,10 @@ private void handleSteinLoeschen(MouseEvent e) {
         zeichneMuehle(g);
         zeichneGewinner((Graphics2D) g);
         zeichneRemis ((Graphics2D) g);
+    }
+    
+    public void updatePanal() {
+    	repaint();
     }
     
     private void zeichneSteine(Graphics2D g) {
@@ -401,7 +409,7 @@ private void handleSteinLoeschen(MouseEvent e) {
     		zeichneSchwarzesQuadratInDerMitte(g);
     		g.setColor(Color.GREEN);
 			g.setFont(new Font("Arial", Font.BOLD, 24));
-    		g.drawString("Remis", 363, 365);
+    		g.drawString("REMIS", 363, 365);
     		g.setFont(new Font("Arial", Font.BOLD, 12));
     		g.drawString("Alle Steine von Gegner",340, 385);
     		g.drawString("sind Teil einen Mülle",345, 405);

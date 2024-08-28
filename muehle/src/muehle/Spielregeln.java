@@ -2,7 +2,6 @@ package muehle;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -72,7 +71,6 @@ public class Spielregeln {
         steine[zuPosition] = steine[vonPosition];
         steine[vonPosition] = null;
         
-        Set<Integer> vonPositionSet = new HashSet<>(Arrays.asList(vonPosition));
         gebildeteMuehlen.removeIf(muehle -> muehle.contains(vonPosition));
         
         aktuellerSpieler = (aktuellerSpieler == spieler1) ? spieler2 : spieler1;
@@ -128,7 +126,7 @@ public class Spielregeln {
 	        case 0: return new int[]{1, 9}; 
 	        case 1: return new int[]{0, 2, 4}; 
 	        case 2: return new int[]{1, 14}; 
-	        case 3: return new int[]{4, 9, 10}; 
+	        case 3: return new int[]{4,10}; 
 	        case 4: return new int[]{1, 3, 5, 7}; 
 	        case 5: return new int[]{4,13}; 
 	        case 6: return new int[]{7,11}; 
@@ -144,7 +142,7 @@ public class Spielregeln {
 	        case 16: return new int[]{15,17,19}; 
 	        case 17: return new int[]{12,16}; 
 	        case 18: return new int[]{10,19}; 
-	        case 19: return new int[]{16, 18, 20, 22}; 
+	        case 19: return new int[]{16, 18,20, 22}; 
 	        case 20: return new int[]{13,19}; 
 	        case 21: return new int[]{9,22}; 
 	        case 22: return new int[]{19,21,23}; 
