@@ -18,7 +18,7 @@ public class Spielfenster extends JFrame {
 		
 		setTitle("Mühle");
 		try {
-            Image icon = ImageIO.read(new File("res/muehle.png"));
+            Image icon = ImageIO.read(new File("src/muehlelogo.png"));
             setIconImage(icon);
         } catch (IOException e) {
             e.printStackTrace();
@@ -28,6 +28,7 @@ public class Spielfenster extends JFrame {
 		setSize(800, 800);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Spielsound.Playmusic("src/gameloopmusic.wav");
 		Menu();
 		
 	}

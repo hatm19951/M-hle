@@ -91,8 +91,7 @@ public class MuehleFeld extends JPanel {
 
     private void handleMouseClick(MouseEvent e) {
         if (pruefeSpielEnde()) return;
-        System.out.println("Handling mouse click at: " + e.getPoint());
-
+        
         if (imSetzModus) {
             handleSteinSetzen(e);
         } else if (imZugModus) {
@@ -103,9 +102,10 @@ public class MuehleFeld extends JPanel {
     }
 
     private boolean pruefeSpielEnde() {
-        if (spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) < 3 ||
-                spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) < 3 ||
-                spielregeln.esGiebtRemis) {
+        if (spielregeln.hatVerloren(aktuellerSpieler) 
+        	|| (spielregeln.nichtBewegenKann(aktuellerSpieler) && imZugModus) 
+        	|| spielregeln.esGiebtRemis) {
+        	
             return true;
         }
         return false;
@@ -123,8 +123,8 @@ public class MuehleFeld extends JPanel {
 
     private void versucheSteinZuSetzen(int position) {
         if (spielregeln.setzeStein(position, aktuellerSpieler.getFarbe())) {
-            System.out.println("Stein gesetzt an Position " + position);
             aktuellerSpieler.steinGesetzt();
+            Spielsound.Playmusic("src/stein.wav");
             pruefeNachSetzen(position);
         } else {
             System.out.println("Ungültiger setzen an Position " + position);
@@ -133,14 +133,12 @@ public class MuehleFeld extends JPanel {
 
     private void pruefeNachSetzen(int position) {
         if (spielregeln.hatMuehle(position)) {
-            System.out.println("Mühle gebildet an Position " + position);
             imSetzModus = false;
             imZugModus = false;
             imLoeschModus = true;
         } else if (spieler1.getGesetzteSteine() + spieler2.getGesetzteSteine() == 18) {
             imSetzModus = false;
             imZugModus = true;
-            System.out.println("Alle Steine gesetzt. Wechsel in den Zugmodus.");
             wechsleSpieler();
         } else {
             wechsleSpieler();
@@ -170,19 +168,17 @@ public class MuehleFeld extends JPanel {
         if (spielregeln.getSteine()[position] != null && spielregeln.getSteine()[position].getFarbe() == aktuellerSpieler.getFarbe()) {
             ausgewaehltePosition = position;
             warSteinAusgewaehlt = true;
-            System.out.println("Stein ausgewählt an Position " + position);
             spielregeln.ausgewähltStein(position, aktuellerSpieler);
         }
     }
 
     private void versucheZuZiehen(int zielPosition) {
         if (ausgewaehltePosition != -1 && spielregeln.zieheStein(ausgewaehltePosition, zielPosition, aktuellerSpieler, spielregeln, spieler1, spieler2)) {
-            System.out.println("Stein bewegt von Position " + ausgewaehltePosition + " zu Position " + zielPosition);
             warSteinAusgewaehlt = false;
             ausgewaehltePosition = -1;
+            Spielsound.Playmusic("src/ziehen.wav");
             pruefeNachZug(zielPosition);
         } else {
-            System.out.println("Ungültiger Zug von Position " + ausgewaehltePosition + " zu Position " + zielPosition);
             warSteinAusgewaehlt = false;
             ausgewaehltePosition = -1;
         }
@@ -190,7 +186,6 @@ public class MuehleFeld extends JPanel {
 
     private void pruefeNachZug(int position) {
         if (spielregeln.hatMuehle(position)) {
-            System.out.println("Mühle gebildet an Position " + position);
             imZugModus = false;
             imLoeschModus = true;
         } else {
@@ -212,9 +207,9 @@ public class MuehleFeld extends JPanel {
     private void versucheSteinZuLoeschen(int position) {
         if (spielregeln.getSteine()[position] != null && spielregeln.getSteine()[position].getFarbe() != aktuellerSpieler.getFarbe()) {
             if (spielregeln.loschen(position, aktuellerSpieler.getFarbe(), spieler1, spieler2)) {
-                System.out.println("Stein an Position " + position + " entfernt.");
                 imLoeschModus = false;
                 Spielregeln.giebtMuehle = false;
+                Spielsound.Playmusic("src/loechen.wav");
                 wechsleSpielerNachLoeschen();
             } else {
                 System.out.println("Fehler beim Löschen des Steins an Position " + position);
@@ -236,7 +231,6 @@ public class MuehleFeld extends JPanel {
 
     private void wechsleSpieler() {
         aktuellerSpieler = (aktuellerSpieler == spieler1) ? spieler2 : spieler1;
-        System.out.println("Wechsle zu " + aktuellerSpieler.getName());
     }
 
     private void zeichneBrett(Graphics2D g2d) {
@@ -380,10 +374,12 @@ public class MuehleFeld extends JPanel {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.drawString("Mühle", 360, 405);
+            Spielsound.Playmusic("src/muehle.wav");
         } else if (Spielregeln.giebtMuehle) {
             g.setColor(Color.BLUE);
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.drawString("Mühle", 360, 405);
+            Spielsound.Playmusic("src/muehle.wav");
         }
     }
 
@@ -395,12 +391,14 @@ public class MuehleFeld extends JPanel {
                 g.drawString("Spieler1", 353, 370);
                 g.drawString("hat", 385, 400);
                 g.drawString("gewonnen", 347, 430);
+                Spielsound.Playmusic("src/gewinner.wav");
             } else{
                 g.setColor(Color.BLUE);
                 g.setFont(new Font("Arial", Font.BOLD, 24));
                 g.drawString("Spieler2", 353, 370);
                 g.drawString("hat", 385, 400);
                 g.drawString("gewonnen", 347, 430);
+                Spielsound.Playmusic("src/gewinner.wav");
             }
         }
     }

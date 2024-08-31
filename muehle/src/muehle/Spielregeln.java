@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 public class Spielregeln {
 
     public static Stein[] steine = new Stein[24]; 
@@ -32,12 +30,8 @@ public class Spielregeln {
             return false; 
         }
         if (farbe == 'r' && gesetzteRotenSteine >= 9) {
-            System.out.println("Keine schwarze Steine mehr zum Setzen übrig.");
-            //imSetzeModus = false;
             return false;
         } else if (farbe == 'b' && gesetzteBlauenSteine >= 9) {
-            System.out.println("Keine weisse Steine mehr zum Setzen übrig.");
-            //imSetzeModus = false;
             return false;
         }
         steine[position] = new Stein(position, position, farbe);
@@ -68,8 +62,6 @@ public class Spielregeln {
     }
     
    public boolean kannSteinZiehen(char farbe) {
-        // Logik zur Überprüfung, ob der Spieler mit der angegebenen Farbe noch ziehen kann
-        // Dies kann z.B. prüfen, ob es noch gültige Züge gibt
     	 if (farbe == 'r' && gesetzteRotenSteine >= 9) {
               return true;
          } else if (farbe == 'b' && gesetzteBlauenSteine >= 9) {
@@ -175,17 +167,14 @@ public class Spielregeln {
     public boolean loschen(int position, char aktuellerSpielerFarbe, Spieler spieler1, Spieler spieler2) {
         if (steine[position] != null && steine[position].getFarbe() != aktuellerSpielerFarbe) {
             if (alleGegnerischenSteineInMuehle(aktuellerSpielerFarbe)) {
-                System.out.println("Stein an Position " + position + " entfernt (obwohl Teil einer Mühle, da keine andere Wahl besteht).");
                 return false; 
             } else if (positionTeileinMuehle(position)) {
-                System.out.println("Der Stein an Position " + position + " ist Teil einer Mühle und kann nicht gelöscht werden.");
                 return false;
             } else {
                 steine[position] = null; 
                 return true; 
             }
         } else {
-            System.out.println("Ungültiger Löschvorgang an Position " + position);
             return false;
         }
     }
@@ -235,17 +224,16 @@ public class Spielregeln {
         }
 		return false;
     }
-    /************************************  "FEHLER"  **********************************************/
+    
     public boolean nichtBewegenKann(Spieler spieler) {
         for (int i = 0; i < steine.length; i++) {
-        	if (spieler.getAktuelleSteineAufFeld(MuehleFeld.spielregeln) > 3) {
-        		if (istSteinVonSpieler(spieler, i) && hatFreieNachbarPosition(i)) {
+        	if (istSteinVonSpieler(spieler, i) && hatFreieNachbarPosition(i)) {
                 return false;
         		}
+        	if (spieler.getAktuelleSteineAufFeld(MuehleFeld.spielregeln) == 3 && istSteinVonSpieler(spieler, i) && !hatFreieNachbarPosition(i)){
+        		return false;
         	}
         }
-        System.out.println(spieler.getName() + " hat verloren, da er keine gültigen Züge mehr machen kann.");
-        System.out.println(spieler.getAktuelleSteineAufFeld(MuehleFeld.spielregeln));
         return true;
     }
 
