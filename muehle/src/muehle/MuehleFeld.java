@@ -1,13 +1,9 @@
 package muehle;
 
 import javax.swing.*;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-//import java.util.Set;
 
 public class MuehleFeld extends JPanel {
 
@@ -17,192 +13,47 @@ public class MuehleFeld extends JPanel {
     private static final int PUNKT_RADIUS = 20;
     private static final int SPIELER_PUNKT_RADIUS = 30;
     private static final int SPIELER_PUNKT_ABSTAND = 40;
-    public static Spielregeln spielregeln; 
-    public static Spieler spieler1, spieler2; 
-    public static Spieler aktuellerSpieler; 
-    
-    private boolean imSetzModus = true;
-    private boolean imZugModus = false;
-    private boolean imLoeschModus = false;
-    
-    private int ausgewaehltePosition = -1; 
-    private boolean warSteinAusgewaehlt = false;
-    
-    public static boolean debugModus = false;
-    public static boolean blauAdd = false;
-    
 
-   private MuehleLogik logik;
-   
-   public static final Point[] points = {
-		    /*0*/ new Point(100, 100), new Point(400, 100), new Point(700, 100),
-		    /*3*/ new Point(200, 200), new Point(400, 200), new Point(600, 200),
-		    /*6*/new Point(300, 300), new Point(400, 300), new Point(500, 300),
-		    /*9*/ new Point(100, 400), /*10*/ new Point(200, 400),  /*11*/ new Point(300, 400),  /*12*/ new Point(500, 400),  /*13*/ new Point(600, 400),  /*14*/ new Point(700, 400),
-		    /*15*/new Point(300, 500), new Point(400, 500), new Point(500, 500),
-		    /*18*/new Point(200, 600), new Point(400, 600), new Point(600, 600),
-		    /*21*/new Point(100, 700), new Point(400, 700), new Point(700, 700)
-		};
+    public static Spielregeln spielregeln;
+    public static Spieler spieler1, spieler2;
+    public static Spieler aktuellerSpieler;
+
+    public static boolean imSetzModus = true;
+    public static boolean imZugModus = false;
+    public static boolean imLoeschModus = false;
+    public static boolean debugModus = false;
+    private int ausgewaehltePosition = -1;
+    private boolean warSteinAusgewaehlt = false;
+
+    private MuehleLogik logik;
+    public static final Point[] points = initialisierePunkte();
 
     public MuehleFeld() {
         initialisiereUI();
         initialisiereInteraktion();
-        
-        this.setPreferredSize(new Dimension(700, 600));
+        setPreferredSize(new Dimension(700, 600));
+        initialisiereSpiel();
+    }
 
+    private static Point[] initialisierePunkte() {
+        return new Point[]{
+                new Point(100, 100), new Point(400, 100), new Point(700, 100),
+                new Point(200, 200), new Point(400, 200), new Point(600, 200),
+                new Point(300, 300), new Point(400, 300), new Point(500, 300),
+                new Point(100, 400), new Point(200, 400), new Point(300, 400),
+                new Point(500, 400), new Point(600, 400), new Point(700, 400),
+                new Point(300, 500), new Point(400, 500), new Point(500, 500),
+                new Point(200, 600), new Point(400, 600), new Point(600, 600),
+                new Point(100, 700), new Point(400, 700), new Point(700, 700)
+        };
+    }
+
+    private void initialisiereSpiel() {
         spielregeln = new Spielregeln();
         spieler1 = new Spieler("Spieler 1", 'r');
         spieler2 = new Spieler("Spieler 2", 'b');
         aktuellerSpieler = spieler1;
-
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                handleMouseClick(e);
-            }
-        });
     }
-    private void handleMouseClick(MouseEvent e) {
-    	
-    	if((spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) <3) || (spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) <3) || spielregeln.esGiebtRemis) {
-    		return;
-    	}
-        System.out.println("Handling mouse click at: " + e.getPoint());
-        if (imSetzModus) {
-            System.out.println("Setzmodus aktiv");
-            handleSteinSetzen(e);
-        } else if (imZugModus) {
-            System.out.println("Zugmodus aktiv");
-            handleSteinZiehen(e);
-        } else if (imLoeschModus) {
-            System.out.println("Löschmodus aktiv");
-            handleSteinLoeschen(e);
-        }
-    }
-    
-    private void handleSteinSetzen(MouseEvent e) {
-        for (int i = 0; i < points.length; i++) {
-            Point p = points[i];
-            
-            if (e.getPoint().distance(p) < 20) { // Klick innerhalb eines Radius von 20 Pixeln
-                // Stein setzen
-                if (spielregeln.setzeStein(i, aktuellerSpieler.getFarbe())) {
-                    System.out.println("Stein gesetzt an Position " + i);
-                    aktuellerSpieler.steinGesetzt();
-
-                    // Prüfen, ob eine Mühle gebildet wurde
-                    if (spielregeln.hatMuehle(i)) {
-                        System.out.println("Mühle gebildet an Position " + i);
-                        imSetzModus = false;
-                        imZugModus = false;
-                        imLoeschModus = true; // Wechsel in den Löschmodus
-                    } else {
-                        // Prüfen, ob alle Steine gesetzt wurden
-                        if (spieler1.getGesetzteSteine() + spieler2.getGesetzteSteine() == 18) { // 18 Steine insgesamt, 9 pro Spieler
-                            imSetzModus = false;
-                            imZugModus = true;
-                            System.out.println("Alle Steine gesetzt. Wechsel in den Zugmodus.");
-                            wechsleSpieler();
-                         
-                        } else {
-                            // Wechsel zu nächsten Spieler
-                            wechsleSpieler();
-                        }
-                    }
-
-                    repaint();
-                } else {
-                    System.out.println("Ungültiger setzen an Position " + i);
-                }
-                break;
-            }
-        }
-    }  
-              
-private void handleSteinZiehen(MouseEvent e) {
-    	
-        for (int i = 0; i < points.length; i++) {
-            Point p = points[i];
-            if (e.getPoint().distance(p) < 20) {
-                if (!warSteinAusgewaehlt) {
-                	
-                    if (spielregeln.getSteine()[i] != null &&
-                        spielregeln.getSteine()[i].getFarbe() == aktuellerSpieler.getFarbe()) {
-                    	
-                        ausgewaehltePosition = i;
-                        warSteinAusgewaehlt = true;
-                        System.out.println("Stein ausgewählt an Position " + i);
-                        spielregeln.ausgewähltStein(i, aktuellerSpieler);
-                    }
-                } else {
-                    if (ausgewaehltePosition != -1) {
-                        if (spielregeln.zieheStein(ausgewaehltePosition, i, aktuellerSpieler,spielregeln,spieler1,spieler2)) {
-                        	System.out.println(aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln));
-                            System.out.println("Stein bewegt von Position " + ausgewaehltePosition + " zu Position " + i);
-                            warSteinAusgewaehlt = false;
-                            ausgewaehltePosition = -1;
-                           
-                            // Mühlenprüfung nach dem Ziehen
-                            if (spielregeln.hatMuehle(i)) {
-                                System.out.println("Mühle gebildet an Position " + i);
-                                imZugModus = false;
-                                imLoeschModus = true;   
-                            } else {
-                                wechsleSpieler();
-                            }
-                            repaint();
-                        } else {
-                            System.out.println("Ungültiger Zug von Position " + ausgewaehltePosition + " zu Position " + i);
-                            warSteinAusgewaehlt = false;
-                            ausgewaehltePosition = -1;
-                        }
-                    }
-                }
-                break;
-            }
-        }
-    }
-    
-
-private void handleSteinLoeschen(MouseEvent e) {
-    for (int i = 0; i < points.length; i++) {
-        Point p = points[i];
-        if (e.getPoint().distance(p) < 20) {
-            if (spielregeln.getSteine()[i] != null &&
-                spielregeln.getSteine()[i].getFarbe() != aktuellerSpieler.getFarbe()) {
-            	 
-                if (spielregeln.loschen(i, aktuellerSpieler.getFarbe(),spieler1,spieler2)) {
-                    System.out.println("Stein an Position " + i + " entfernt.");
-                    System.out.println(aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln));
-                                    
-                    imLoeschModus = false; // Löschmodus beenden
-                    Spielregeln.giebtMuehle = false;
-                    wechsleSpieler();
-                    if (spielregeln.hatNochZuege(aktuellerSpieler.getFarbe())) {
-                        imZugModus = true; // Zurück in den Zugmodus, wenn noch Züge möglich sind
-                    } else {
-                        imSetzModus = true; // Ansonsten zurück zum Setzen, falls keine Züge mehr möglich
-                    }
-                    repaint();
-                    break;
-                } else {
-                    System.out.println("Fehler beim Löschen des Steins an Position " + i);
-                }
-            } else {
-                System.out.println("Ungültiger Löschversuch an Position " + i);
-            }
-        }
-    }
-}
-
-
-
-    private void wechsleSpieler() {
-        aktuellerSpieler = (aktuellerSpieler == spieler1) ? spieler2 : spieler1;
-        System.out.println("Wechsle zu " + aktuellerSpieler.getName());
-    }
-
-
 
     private void initialisiereUI() {
         setBackground(Color.BLACK);
@@ -220,98 +71,179 @@ private void handleSteinLoeschen(MouseEvent e) {
 
     private void verarbeiteMausKlick(MouseEvent e) {
         logik.handleClick(e.getX(), e.getY());
+        handleMouseClick(e);
         repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
         zeichneBrett((Graphics2D) g);
-        zeichneSchwarzesQuadratInDerMitte(g);
         zeichneSteine((Graphics2D) g);
+        zeichneSchwarzeQuadrat ((Graphics2D) g);
         zeichneAusgewähltKreis((Graphics2D) g);
         zeichneAktuellenSpieler(g);
         zeichneVerbleibendeSteine(g);
         zeichneMuehle(g);
         zeichneGewinner((Graphics2D) g);
-        zeichneRemis ((Graphics2D) g);
+        zeichneRemis((Graphics2D) g);
     }
-    
-    public void updatePanal() {
-    	repaint();
+
+    private void handleMouseClick(MouseEvent e) {
+        if (pruefeSpielEnde()) return;
+        System.out.println("Handling mouse click at: " + e.getPoint());
+
+        if (imSetzModus) {
+            handleSteinSetzen(e);
+        } else if (imZugModus) {
+            handleSteinZiehen(e);
+        } else if (imLoeschModus) {
+            handleSteinLoeschen(e);
+        }
     }
-    
-    private void zeichneSteine(Graphics2D g) {
-    	for (int i = 0; i < spielregeln.getSteine().length; i++) {
-            if (spielregeln.getSteine()[i] != null) {
-                g.setColor(spielregeln.getSteine()[i].getFarbe() == 'r' ? Color.RED : Color.BLUE);
-                g.fillOval(points[i].x - 15, points[i].y - 15, 30, 30);
-                g.setColor(Color.BLACK);
-                g.drawOval(points[i].x - 15, points[i].y - 15, 30, 30);
+
+    private boolean pruefeSpielEnde() {
+        if (spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) < 3 ||
+                spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) < 3 ||
+                spielregeln.esGiebtRemis) {
+            return true;
+        }
+        return false;
+    }
+
+    private void handleSteinSetzen(MouseEvent e) {
+        Point klickPunkt = e.getPoint();
+        for (int i = 0; i < points.length; i++) {
+            if (klickPunkt.distance(points[i]) < 20) {
+                versucheSteinZuSetzen(i);
+                break;
             }
         }
     }
-    
-    private void zeichneAusgewähltKreis(Graphics2D g){
-    	for (int i = 0; i < spielregeln.getSteine().length; i++) {
-            if (spielregeln.getSteine()[i] != null && spielregeln.getSteine()[i].ausgewählt ) {
-                g.setColor(Color.YELLOW);
-                zeichneKreis(g, points[i].x, points[i].y, 30);
-                if(imZugModus) {
-                	int[] benachbartePositionen = spielregeln.getBenachbartePositionen(i);
-                	for (int pos : benachbartePositionen) {
-                		if (spielregeln.getSteine()[pos] == null) {
-                			g.setColor(Color.YELLOW);
-                			zeichneKreis(g, points[pos].x, points[pos].y, 30);
-                		}
-                	}
-                spielregeln.getSteine()[i].ausgewählt = false;
-            }
+
+    private void versucheSteinZuSetzen(int position) {
+        if (spielregeln.setzeStein(position, aktuellerSpieler.getFarbe())) {
+            System.out.println("Stein gesetzt an Position " + position);
+            aktuellerSpieler.steinGesetzt();
+            pruefeNachSetzen(position);
+        } else {
+            System.out.println("Ungültiger setzen an Position " + position);
+        }
+    }
+
+    private void pruefeNachSetzen(int position) {
+        if (spielregeln.hatMuehle(position)) {
+            System.out.println("Mühle gebildet an Position " + position);
+            imSetzModus = false;
+            imZugModus = false;
+            imLoeschModus = true;
+        } else if (spieler1.getGesetzteSteine() + spieler2.getGesetzteSteine() == 18) {
+            imSetzModus = false;
+            imZugModus = true;
+            System.out.println("Alle Steine gesetzt. Wechsel in den Zugmodus.");
+            wechsleSpieler();
+        } else {
+            wechsleSpieler();
+        }
+        repaint();
+    }
+
+    private void handleSteinZiehen(MouseEvent e) {
+        Point klickPunkt = e.getPoint();
+        for (int i = 0; i < points.length; i++) {
+            if (klickPunkt.distance(points[i]) < 20) {
+                verarbeiteZug(i);
+                break;
             }
         }
     }
-    
-    private void zeichneAktuellenSpieler(Graphics g) {
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 18));
-        String text = "Aktueller Spieler: " + aktuellerSpieler.getName();
-        g.drawString(text, 275, 50);
-        //String text1 = "Phase: " + aktuellerSpieler.getName();
+
+    private void verarbeiteZug(int neuePosition) {
+        if (!warSteinAusgewaehlt) {
+            versucheSteinAuszuwaehlen(neuePosition);
+        } else {
+            versucheZuZiehen(neuePosition);
+        }
     }
-    
-    
-    private void zeichneVerbleibendeSteine(Graphics g) {
-    	g.setColor(Color.RED);
-        g.setFont(new Font("Arial", Font.BOLD, 18));
-        g.drawString("Spieler1: " + spieler1.getVerbleibendeSteine(), 50, 50);
-        g.drawString("gesetzte Steine: " + spieler1.getAktuelleSteineAufFeld(spielregeln), 50, 80);
-        
-        g.setColor(Color.BLUE);
-        g.drawString("Spieler2: " + spieler2.getVerbleibendeSteine(), 600, 50);
-        g.drawString("gesetzte Steine: " + spieler2.getAktuelleSteineAufFeld(spielregeln), 600, 80);
+
+    private void versucheSteinAuszuwaehlen(int position) {
+        if (spielregeln.getSteine()[position] != null && spielregeln.getSteine()[position].getFarbe() == aktuellerSpieler.getFarbe()) {
+            ausgewaehltePosition = position;
+            warSteinAusgewaehlt = true;
+            System.out.println("Stein ausgewählt an Position " + position);
+            spielregeln.ausgewähltStein(position, aktuellerSpieler);
+        }
     }
-    
-    private void zeichneMuehle(Graphics g) {
-    	if (Spielregeln.giebtMuehle == true && aktuellerSpieler.getFarbe() == 'r') {
-    		g.setColor(Color.RED);
-    		g.setFont(new Font("Arial", Font.BOLD, 30));
-    		g.drawString("Mühle", 360, 405);
-    		
-    	}else if(Spielregeln.giebtMuehle == true){
-    		g.setColor(Color.BLUE);
-    		g.setFont(new Font("Arial", Font.BOLD, 30));
-    		g.drawString("Mühle", 360, 405);
-    	}
-    	
+
+    private void versucheZuZiehen(int zielPosition) {
+        if (ausgewaehltePosition != -1 && spielregeln.zieheStein(ausgewaehltePosition, zielPosition, aktuellerSpieler, spielregeln, spieler1, spieler2)) {
+            System.out.println("Stein bewegt von Position " + ausgewaehltePosition + " zu Position " + zielPosition);
+            warSteinAusgewaehlt = false;
+            ausgewaehltePosition = -1;
+            pruefeNachZug(zielPosition);
+        } else {
+            System.out.println("Ungültiger Zug von Position " + ausgewaehltePosition + " zu Position " + zielPosition);
+            warSteinAusgewaehlt = false;
+            ausgewaehltePosition = -1;
+        }
+    }
+
+    private void pruefeNachZug(int position) {
+        if (spielregeln.hatMuehle(position)) {
+            System.out.println("Mühle gebildet an Position " + position);
+            imZugModus = false;
+            imLoeschModus = true;
+        } else {
+            wechsleSpieler();
+        }
+        repaint();
+    }
+
+    private void handleSteinLoeschen(MouseEvent e) {
+        Point klickPunkt = e.getPoint();
+        for (int i = 0; i < points.length; i++) {
+            if (klickPunkt.distance(points[i]) < 20) {
+                versucheSteinZuLoeschen(i);
+                break;
+            }
+        }
+    }
+
+    private void versucheSteinZuLoeschen(int position) {
+        if (spielregeln.getSteine()[position] != null && spielregeln.getSteine()[position].getFarbe() != aktuellerSpieler.getFarbe()) {
+            if (spielregeln.loschen(position, aktuellerSpieler.getFarbe(), spieler1, spieler2)) {
+                System.out.println("Stein an Position " + position + " entfernt.");
+                imLoeschModus = false;
+                Spielregeln.giebtMuehle = false;
+                wechsleSpielerNachLoeschen();
+            } else {
+                System.out.println("Fehler beim Löschen des Steins an Position " + position);
+            }
+        } else {
+            System.out.println("Ungültiger Löschversuch an Position " + position);
+        }
+    }
+
+    private void wechsleSpielerNachLoeschen() {
+        wechsleSpieler();
+        if (spielregeln.hatNochZuege(aktuellerSpieler.getFarbe())) {
+            imZugModus = true;
+        } else {
+            imSetzModus = true;
+        }
+        repaint();
+    }
+
+    private void wechsleSpieler() {
+        aktuellerSpieler = (aktuellerSpieler == spieler1) ? spieler2 : spieler1;
+        System.out.println("Wechsle zu " + aktuellerSpieler.getName());
     }
 
     private void zeichneBrett(Graphics2D g2d) {
         setzeRenderingHinweise(g2d);
         zeichneVerschachtelteQuadrate(g2d);
-        zeichnePunkte(g2d);
         zeichneVerbindungslinien(g2d);
-        logik.drawGame(g2d);
+        zeichnePunkte(g2d);
     }
 
     private void setzeRenderingHinweise(Graphics2D g2d) {
@@ -355,14 +287,6 @@ private void handleSteinLoeschen(MouseEvent e) {
         zeichneKreiseFuerQuadrat(g2d, mittlerePositionen);
         zeichneKreiseFuerQuadrat(g2d, innerePositionen);
     }
-    
-    private void zeichneSchwarzesQuadratInDerMitte(Graphics g) {
-        g.setColor(Color.black);
-        int quadratGroesse = 172;
-        int x = 315;
-        int y = 315;
-        g.fillRect(x, y, quadratGroesse, quadratGroesse);
-    }
 
     private void zeichneKreiseFuerQuadrat(Graphics2D g2d, int[] positionen) {
         for (int x : positionen) {
@@ -371,53 +295,129 @@ private void handleSteinLoeschen(MouseEvent e) {
             }
         }
     }
-    
+
     private void zeichneKreis(Graphics2D g2d, int x, int y, int radius) {
         int angepasstesX = x - radius / 2;
         int angepasstesY = y - radius / 2;
         g2d.drawOval(angepasstesX, angepasstesY, radius, radius);
     }
 
+    private void zeichneSteine(Graphics2D g2d) {
+        for (int i = 0; i < spielregeln.getSteine().length; i++) {
+            if (spielregeln.getSteine()[i] != null) {
+                g2d.setColor(spielregeln.getSteine()[i].getFarbe() == 'r' ? Color.RED : Color.BLUE);
+                g2d.fillOval(points[i].x - 15, points[i].y - 15, 30, 30);
+                g2d.setColor(Color.BLACK);
+                g2d.drawOval(points[i].x - 15, points[i].y - 15, 30, 30);
+            }
+        }
+    }
+    
+    private void zeichneSchwarzeQuadrat (Graphics2D g) {
+    	g.setColor(Color.black);
+    	g.fillRect(315, 315, 172, 172);  
+    	}
+    
 
-    private void zeichneSpielerBereich(Graphics2D g2d, int x,int verschibungInYAchse, Color farbe) {
-        g2d.setColor(farbe);
-            int y = RAND + verschibungInYAchse * SPIELER_PUNKT_ABSTAND;
-            zeichneKreis(g2d, x, y, SPIELER_PUNKT_RADIUS);
+    private void zeichneAusgewähltKreis(Graphics2D g2d) {
+        for (int i = 0; i < spielregeln.getSteine().length; i++) {
+            if (spielregeln.getSteine()[i] != null && spielregeln.getSteine()[i].ausgewählt) {
+                g2d.setColor(Color.YELLOW);
+                zeichneKreis(g2d, points[i].x, points[i].y, 30);
+                zeigeMöglicheSteine1(g2d,i);
+                zeigeMöglicheSteine2(g2d,i);
+                
+            }
+        }
     }
     
+    private void zeigeMöglicheSteine1(Graphics2D g2d, int i) {
+    	if (imZugModus) {
+            int[] benachbartePositionen = spielregeln.getBenachbartePositionen(i);
+            for (int pos : benachbartePositionen) {
+                if (spielregeln.getSteine()[pos] == null) {
+                    g2d.setColor(Color.YELLOW);
+                    zeichneKreis(g2d, points[pos].x, points[pos].y, 30);
+                }
+            }
+            spielregeln.getSteine()[i].ausgewählt = false;
+        }
+    }
+    
+    private void zeigeMöglicheSteine2(Graphics2D g2d, int i) {
+    	if (imZugModus && aktuellerSpieler.getAktuelleSteineAufFeld(spielregeln) == 3) {
+   		 for (int index = 0; index < spielregeln.getSteine().length; index++) {
+   			 if (spielregeln.getSteine()[index] == null) {
+   				 g2d.setColor(Color.YELLOW);
+                    zeichneKreis(g2d, points[index].x, points[index].y, 30);
+   			 }
+   		 }
+   		spielregeln.getSteine()[i].ausgewählt = false;
+    	}
+    }
+    
+
+    private void zeichneAktuellenSpieler(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        String text = "Aktueller Spieler: " + aktuellerSpieler.getName();
+        g.drawString(text, 275, 50);
+    }
+
+    private void zeichneVerbleibendeSteine(Graphics g) {
+        g.setColor(Color.RED);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        g.drawString("Spieler1: " + spieler1.getVerbleibendeSteine(), 50, 50);
+        g.drawString("gesetzte Steine: " + spieler1.getAktuelleSteineAufFeld(spielregeln), 50, 80);
+
+        g.setColor(Color.BLUE);
+        g.drawString("Spieler2: " + spieler2.getVerbleibendeSteine(), 600, 50);
+        g.drawString("gesetzte Steine: " + spieler2.getAktuelleSteineAufFeld(spielregeln), 600, 80);
+    }
+
+    private void zeichneMuehle(Graphics g) {
+        if (Spielregeln.giebtMuehle && aktuellerSpieler.getFarbe() == 'r') {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.drawString("Mühle", 360, 405);
+        } else if (Spielregeln.giebtMuehle) {
+            g.setColor(Color.BLUE);
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.drawString("Mühle", 360, 405);
+        }
+    }
+
     private void zeichneGewinner(Graphics2D g) {
-    	if((spieler1.verbleibendeSteine == 0 && spieler1.getAktuelleSteineAufFeld(spielregeln) <3) || (spieler2.verbleibendeSteine == 0 && spieler2.getAktuelleSteineAufFeld(spielregeln) <3) ) {
-    		if(aktuellerSpieler == spieler2) {
-    			g.setColor(Color.RED);
-    			g.setFont(new Font("Arial", Font.BOLD, 24));
-        		g.drawString("Spieler1", 353, 370);
-        		g.drawString("hat", 385, 400);
-        		g.drawString("gewonnen", 347, 430);
-    		} else {
-    			g.setColor(Color.BLUE);
-    			g.setFont(new Font("Arial", Font.BOLD, 24));
-        		g.drawString("Spieler2", 353, 370);
-        		g.drawString("hat", 385, 400);
-        		g.drawString("gewonnen", 347, 430);
-    		}
-    	}
-    	
+        if (spielregeln.hatVerloren(aktuellerSpieler) || (spielregeln.nichtBewegenKann(aktuellerSpieler) && imZugModus)) {
+            if (aktuellerSpieler == spieler2) {
+                g.setColor(Color.RED);
+                g.setFont(new Font("Arial", Font.BOLD, 24));
+                g.drawString("Spieler1", 353, 370);
+                g.drawString("hat", 385, 400);
+                g.drawString("gewonnen", 347, 430);
+            } else{
+                g.setColor(Color.BLUE);
+                g.setFont(new Font("Arial", Font.BOLD, 24));
+                g.drawString("Spieler2", 353, 370);
+                g.drawString("hat", 385, 400);
+                g.drawString("gewonnen", 347, 430);
+            }
+        }
     }
-    
-    private void zeichneRemis (Graphics2D g) {
-    	if(spielregeln.esGiebtRemis) {
-    		zeichneSchwarzesQuadratInDerMitte(g);
-    		g.setColor(Color.GREEN);
-			g.setFont(new Font("Arial", Font.BOLD, 24));
-    		g.drawString("REMIS", 363, 365);
-    		g.setFont(new Font("Arial", Font.BOLD, 12));
-    		g.drawString("Alle Steine von Gegner",340, 385);
-    		g.drawString("sind Teil einen Mülle",345, 405);
-    	}
+
+    private void zeichneRemis(Graphics2D g) {
+        if (spielregeln.esGiebtRemis) {
+        	zeichneSchwarzeQuadrat ((Graphics2D) g);
+            g.setColor(Color.GREEN);
+            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.drawString("REMIS", 363, 365);
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.drawString("Alle Steine von Gegner", 340, 385);
+            g.drawString("sind Teil einer Muehle", 345, 405);
+        }
     }
-    
+
     public void neuStartSpiel() {
-    	
         spielregeln = new Spielregeln();
         spielregeln.giebtMuehle = false;
         spieler1 = new Spieler("Spieler 1", 'r');

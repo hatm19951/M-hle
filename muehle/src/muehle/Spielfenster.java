@@ -23,18 +23,13 @@ public class Spielfenster extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+		
 		add(feld);
 		setSize(800, 800);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Menu();
 		
-		this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-             
-            }
-        });
 	}
 	
 	private void Menu() {
@@ -77,52 +72,27 @@ public class Spielfenster extends JFrame {
 	}
 	
 	private void inhaltDebugModusMenu(JMenuBar menuBar,JMenu debugModusMenu) {
-		JMenuItem debugModus = new JMenuItem("Debug-Modus akktivieren");
 		JMenuItem zeichneBlau = new JMenuItem("blauen platzieren");
         JMenuItem zeichneRot = new JMenuItem("roten platzieren");
-
-        debugModusMenu.add(debugModus);
+        JMenuItem zugModus = new JMenuItem("Zug-Modus aktivieren");
+ 
         debugModusMenu.add(zeichneBlau);
         debugModusMenu.add(zeichneRot);
-        debugaktivieren(debugModus);
+        debugModusMenu.add(zugModus);
+        
         zeichneBlauAction(zeichneBlau);
         zeichneRotAction(zeichneRot);
+        bewegeStein(zugModus);
         setJMenuBar(menuBar);
 	}
 	
-	private void debugaktivieren(JMenuItem a){
-		a.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	
-            	if(!MuehleFeld.debugModus) {
-            		MuehleFeld.debugModus = true;
-            		a.setText("Debug-Modus deakktivieren");
-                	System.out.println("Debug-Modus aktiv");
-                	}else {
-                		MuehleFeld.debugModus = false;	
-                		System.out.println("Debug-Modus deaktiv");
-                		a.setText("Debug-Modus akktivieren");
-                	}
-            }
-            
-        });
-	}
-	
+
 	private void zeichneBlauAction(JMenuItem a){
 		a.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	if(!MuehleFeld.blauAdd) {
             	MuehleFeld.aktuellerSpieler = MuehleFeld.spieler2;
-            	System.out.println("Blau aktiv");
-            	}else {
-            		MuehleFeld.blauAdd = false;
-            		System.out.println("Blau deaktiv");
-            	}
             }
-           
-            
         });
 	}
 	
@@ -131,14 +101,30 @@ public class Spielfenster extends JFrame {
 		a.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	MuehleFeld.aktuellerSpieler = MuehleFeld.spieler1;
+            }     	
+        });
+	}
+	
+	private void bewegeStein(JMenuItem a) {
+		a.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
             	
-                	MuehleFeld.aktuellerSpieler = MuehleFeld.spieler1;
+            	if(!MuehleFeld.imZugModus) {
+            		MuehleFeld.imSetzModus = false;
+            		MuehleFeld.imZugModus = true;
+            		a.setText("Zug-Modus deakktivieren");
+                } else {
+                		MuehleFeld.imSetzModus = true;
+                		MuehleFeld.imZugModus = false;	
+                		a.setText("Zug-Modus akktivieren");
+                	}
                 	
  
             }
         });
 	}
-	
 	
 }
 
