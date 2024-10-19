@@ -2,20 +2,20 @@ package muehle;
 
 
 public class Spieler {
-    private String name;       // Name des Spielers
-    private char farbe;        // 'r' für Rot oder 'b' für Blau
-    public int verbleibendeSteine; // Anzahl der Steine, die der Spieler noch setzen kann
+    private String name;       
+    private char farbe;       
+    public int verbleibendeSteine; 
     public int gesetzteSteine;
-    private int maximaleSteine = 9;// Anzahl der bereits gesetzten Steine
+    private int maximaleSteine = 9;
 
     public Spieler(String name, char farbe) {
         this.name = name;
         this.farbe = farbe;
-        this.verbleibendeSteine = 9; // Jeder Spieler hat 9 Steine zu Beginn
+        this.verbleibendeSteine = 9;
         this.gesetzteSteine = 0;
     }
 
-    // Getter-Methoden
+  
     public String getName() {
         return name;
     }
@@ -32,7 +32,7 @@ public class Spieler {
         return gesetzteSteine;
     }
 
-    // Methode, um einen Stein zu setzen
+
     public void steinGesetzt() {
         if (verbleibendeSteine > 0) {
             verbleibendeSteine--;
@@ -47,7 +47,7 @@ public class Spieler {
         return gesetzteSteine >= maximaleSteine;
     }
 
-    // Methode, um einen Stein zu verlieren (z.B. wenn der Gegner eine Mühle bildet)
+  
     public void steinVerloren() {
         if (gesetzteSteine > 0) {
             gesetzteSteine--;
